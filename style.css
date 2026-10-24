@@ -1,0 +1,278 @@
+/* =========================================================
+   NEON ESCAPE — style.css
+   Estética: fondo casi negro + neones cian, violeta y magenta.
+   ========================================================= */
+
+:root {
+  --c-cyan: #18e5ff;
+  --c-violet: #b44bff;
+  --c-magenta: #ff2fd6;
+  --c-danger: #ff3355;
+  --c-text: #d9f6ff;
+  --c-panel: rgba(14, 7, 32, 0.78);
+  --font: "Segoe UI", system-ui, -apple-system, Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #07040f;
+  font-family: var(--font);
+  color: var(--c-text);
+  overscroll-behavior: none;
+}
+
+button { font-family: var(--font); }
+
+/* ---------- lienzo del juego ---------- */
+#scene {
+  position: fixed;
+  inset: 0;
+  display: block;
+  touch-action: none; /* evita scroll / zoom con gestos */
+}
+
+/* =========================================================
+   HUD (solo visible mientras se juega)
+   ========================================================= */
+#hud {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  z-index: 20;
+  display: none;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+}
+body.state-playing #hud { display: flex; }
+
+.hud-box {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 64px;
+  padding: 0.45rem 0.8rem;
+  background: var(--c-panel);
+  border: 1px solid rgba(24, 229, 255, 0.35);
+  border-radius: 10px;
+  box-shadow: 0 0 14px rgba(24, 229, 255, 0.15), inset 0 0 12px rgba(24, 229, 255, 0.05);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+}
+
+.crystal-icon {
+  color: var(--c-violet);
+  text-shadow: 0 0 8px rgba(180, 75, 255, 0.9);
+}
+
+#hud-time {
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(1.15rem, 3.6vw, 1.6rem);
+}
+#hud-time.danger {
+  color: var(--c-danger);
+  border-color: rgba(255, 51, 85, 0.6);
+  text-shadow: 0 0 10px rgba(255, 51, 85, 0.7);
+  animation: pulse 1s steps(2, end) infinite;
+}
+
+.life { color: var(--c-danger); text-shadow: 0 0 9px rgba(255, 51, 85, 0.75); }
+.life.lost { color: #463552; text-shadow: none; }
+
+@keyframes pulse { 50% { opacity: 0.55; } }
+
+/* ---------- aviso central temporal ---------- */
+#message {
+  position: fixed;
+  top: 66px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 25;
+  opacity: 0; /* la maneja script.js cada fotograma */
+  pointer-events: none;
+  white-space: nowrap;
+  padding: 0.4rem 1rem;
+  background: var(--c-panel);
+  border: 1px solid rgba(180, 75, 255, 0.5);
+  border-radius: 999px;
+  color: #f2e8ff;
+  font-weight: 600;
+  font-size: clamp(0.85rem, 2.4vw, 1rem);
+}
+
+/* ---------- destello de daño ---------- */
+#flash {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0; /* la maneja script.js cada fotograma */
+  background: radial-gradient(ellipse at center, rgba(255, 0, 80, 0) 34%, rgba(255, 32, 80, 0.62) 100%);
+}
+
+/* =========================================================
+   CRUCETA TÁCTIL (solo en pantallas táctiles y jugando)
+   ========================================================= */
+#touch-controls {
+  position: fixed;
+  left: 12px;
+  bottom: 12px;
+  z-index: 22;
+  display: none;
+  grid-template-columns: repeat(3, 58px);
+  grid-template-rows: repeat(3, 58px);
+  gap: 6px;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* visible solo si el dispositivo es táctil Y hay una partida en curso */
+body.state-playing.has-touch #touch-controls { display: grid; }
+
+.pad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(24, 229, 255, 0.45);
+  border-radius: 12px;
+  background: rgba(18, 9, 38, 0.6);
+  color: var(--c-cyan);
+  font-size: 1.15rem;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(24, 229, 255, 0.2);
+}
+.pad.pressed {
+  background: rgba(24, 229, 255, 0.25);
+  box-shadow: 0 0 18px rgba(24, 229, 255, 0.55);
+}
+.pad.up    { grid-area: 1 / 2; }
+.pad.left  { grid-area: 2 / 1; }
+.pad.down  { grid-area: 2 / 2; }
+.pad.right { grid-area: 2 / 3; }
+
+/* =========================================================
+   PANTALLAS (inicio, victoria, derrota)
+   ========================================================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: radial-gradient(circle at 50% 28%, rgba(34, 12, 66, 0.6), rgba(4, 2, 10, 0.9));
+  backdrop-filter: blur(7px);
+}
+.overlay.hidden { display: none; }
+
+.panel {
+  max-width: min(560px, 94vw);
+  max-height: 88vh;
+  overflow: auto;
+  padding: clamp(1.2rem, 4vw, 2.4rem);
+  text-align: center;
+  background: linear-gradient(160deg, rgba(16, 8, 38, 0.92), rgba(8, 4, 22, 0.94));
+  border: 1px solid rgba(183, 77, 255, 0.4);
+  border-radius: 16px;
+  box-shadow: 0 0 60px rgba(180, 75, 255, 0.25), inset 0 0 30px rgba(24, 229, 255, 0.06);
+}
+
+h1 {
+  margin: 0;
+  color: #eafcff;
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
+  letter-spacing: 0.16em;
+  text-shadow: 0 0 12px var(--c-cyan), 0 0 42px rgba(255, 47, 214, 0.8);
+}
+h1 .accent { color: var(--c-magenta); text-shadow: 0 0 12px var(--c-magenta), 0 0 42px rgba(24, 229, 255, 0.7); }
+
+.subtitle {
+  margin: 0.5rem 0 0;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: clamp(0.7rem, 2.2vw, 0.85rem);
+  color: rgba(214, 240, 255, 0.75);
+}
+
+#start-best {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: #ffd479;
+}
+
+.instructions {
+  margin: 1.2rem auto;
+  padding-left: 1.3rem;
+  max-width: 42ch;
+  text-align: left;
+  line-height: 1.65;
+  font-size: clamp(0.9rem, 2.5vw, 1rem);
+  color: #cfeaff;
+}
+.instructions li { margin: 0.35rem 0; }
+.instructions li::marker { color: var(--c-cyan); }
+.violet { color: var(--c-violet); }
+.magenta { color: var(--c-magenta); }
+.red { color: var(--c-danger); }
+
+h2 {
+  margin: 0 0 0.8rem;
+  font-size: clamp(1.9rem, 7vw, 2.8rem);
+  letter-spacing: 0.12em;
+}
+#end-title.win { color: var(--c-cyan); text-shadow: 0 0 14px rgba(24, 229, 255, 0.9); }
+#end-title.lose { color: var(--c-magenta); text-shadow: 0 0 14px rgba(255, 47, 214, 0.9); }
+
+#end-stats { margin: 0; line-height: 1.7; color: #cfeaff; }
+#end-stats b, #end-stats strong { color: #ffffff; }
+#end-best { margin: 0.5rem 0 0; font-size: 0.85rem; color: #ffd479; }
+
+.btn {
+  margin-top: 1.4rem;
+  padding: 0.8rem 2.6rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: var(--c-cyan);
+  color: #0b0420;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-size: clamp(1rem, 2.5vw, 1.25rem);
+  cursor: pointer;
+  box-shadow: 0 0 18px rgba(24, 229, 255, 0.7);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.btn:hover { transform: translateY(-2px); box-shadow: 0 0 26px rgba(24, 229, 255, 0.9); }
+.btn:active { transform: translateY(1px); }
+
+.legend {
+  margin: 1.2rem 0 0;
+  font-size: 0.85rem;
+  color: rgba(214, 240, 255, 0.8);
+}
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 4px 0 12px;
+  vertical-align: middle;
+}
+.dot:first-child { margin-left: 0; }
+.dot.cyan { background: var(--c-cyan); box-shadow: 0 0 8px var(--c-cyan); }
+.dot.violet { background: var(--c-violet); box-shadow: 0 0 8px var(--c-violet); }
+.dot.magenta { background: var(--c-magenta); box-shadow: 0 0 8px var(--c-magenta); }
+
+.error-note {
+  margin: 1rem 0 0;
+  font-weight: 600;
+  color: #ff9db1;
+}

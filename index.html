@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#07040f" />
+  <title>NEON ESCAPE</title>
+  <link rel="stylesheet" href="style.css" />
+  <!--
+    Dependencia única: Three.js (versión fija 0.170.0), cargada como
+    módulo ES desde el CDN jsDelivr. El "import map" indica al navegador
+    que el nombre "three" apunta siempre a esa versión concreta, así la
+    dependencia queda documentada y es consistente en todo el proyecto.
+  -->
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+      }
+    }
+  </script>
+</head>
+<body class="state-menu">
+  <!-- Lienzo donde Three.js dibuja la escena 3D -->
+  <canvas id="scene"></canvas>
+
+  <!-- HUD superior: cristales, tiempo y vidas -->
+  <div id="hud">
+    <div class="hud-box"><span class="crystal-icon">◆</span><span id="hud-crystals">0 / 8</span></div>
+    <div class="hud-box" id="hud-time">1:30</div>
+    <div class="hud-box" id="hud-lives" aria-label="vidas">
+      <span class="life">♥</span><span class="life">♥</span><span class="life">♥</span>
+    </div>
+  </div>
+
+  <!-- Aviso central temporal (nuevo enemigo, última vida, ...) -->
+  <div id="message"></div>
+
+  <!-- Destello rojo en los bordes al recibir daño -->
+  <div id="flash"></div>
+
+  <!-- Cruceta táctil para móviles (esquina inferior izquierda) -->
+  <div id="touch-controls">
+    <button class="pad up" data-dir="up" aria-label="mover arriba">▲</button>
+    <button class="pad left" data-dir="left" aria-label="mover izquierda">◀</button>
+    <button class="pad down" data-dir="down" aria-label="mover abajo">▼</button>
+    <button class="pad right" data-dir="right" aria-label="mover derecha">▶</button>
+  </div>
+
+  <!-- Pantalla de inicio -->
+  <div id="overlay-start" class="overlay">
+    <div class="panel">
+      <h1>NEON <span class="accent">ESCAPE</span></h1>
+      <p class="subtitle">Recolecta · Evade · Sobrevive</p>
+      <p id="start-best"></p>
+      <ul class="instructions">
+        <li>Recoge los <b class="violet">8 cristales</b> en menos de 90 segundos para ganar.</li>
+        <li>Evita a los <b class="magenta">enemigos</b>: al cumplirse 45 s aparece un tercero.</li>
+        <li>Empiezas con <b class="red">3 vidas</b>; tras cada golpe tienes 2 s de invulnerabilidad.</li>
+        <li><b>WASD</b> o <b>flechas</b> para moverte. En móvil, usa la cruceta inferior izquierda.</li>
+      </ul>
+      <button id="btn-play" class="btn">JUGAR</button>
+      <p class="legend">
+        <span class="dot cyan"></span> Jugador
+        <span class="dot violet"></span> Cristales
+        <span class="dot magenta"></span> Enemigos
+      </p>
+    </div>
+  </div>
+
+  <!-- Pantalla de fin (victoria o derrota), se reutiliza para ambos casos -->
+  <div id="overlay-end" class="overlay hidden">
+    <div class="panel">
+      <h2 id="end-title"></h2>
+      <p id="end-stats"></p>
+      <p id="end-best"></p>
+      <button id="btn-restart" class="btn">REINICIAR</button>
+    </div>
+  </div>
+
+  <script type="module" src="script.js"></script>
+  <!--
+    Aviso si el CDN de Three.js no se pudo cargar (sin conexión, por ejemplo).
+    En caso de fallo, window.__neon no existiría y se informa al jugador.
+  -->
+  <script>
+    setTimeout(function () {
+      if (!window.__neon) {
+        var panel = document.querySelector("#overlay-start .panel");
+        if (panel) {
+          var note = document.createElement("p");
+          note.className = "error-note";
+          note.textContent = "No se pudo cargar Three.js desde el CDN. Comprueba tu conexión a internet y recarga la página.";
+          panel.appendChild(note);
+        }
+      }
+    }, 4000);
+  </script>
+</body>
+</html>
